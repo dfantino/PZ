@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactFlow, { 
   ReactFlowProvider, 
   Background, 
@@ -8,6 +8,7 @@ import ReactFlow, {
   Handle,
   Position
 } from "reactflow";
+import ReactMarkdown from 'react-markdown';
 import "reactflow/dist/style.css";
 import { LANE_HEIGHT, NODE_WIDTH, HORIZONTAL_SPACING, START_X, START_Y, PROCESS_CONFIG } from './processConfig';
 
@@ -77,10 +78,10 @@ const CustomNode = ({ data }) => {
 const nodeTypes = { custom: CustomNode };
 
 // ==========================================
-// Modal Component
+// Modal Component with Markdown Support
 // ==========================================
-const Modal = ({ isOpen, onClose, data }) => {
-  if (!isOpen || !data) return null;
+const Modal = ({ isOpen, onClose, markdownContent, processLabel }) => {
+  if (!isOpen) return null;
 
   return (
     <div
@@ -103,9 +104,9 @@ const Modal = ({ isOpen, onClose, data }) => {
         style={{
           background: 'white',
           borderRadius: '12px',
-          maxWidth: '600px',
+          maxWidth: '800px',
           width: '100%',
-          maxHeight: '80vh',
+          maxHeight: '85vh',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -119,99 +120,62 @@ const Modal = ({ isOpen, onClose, data }) => {
           justifyContent: 'space-between', 
           alignItems: 'center', 
           padding: '24px 30px',
-          borderBottom: '1px solid #e5e7eb',
-          flexShrink: 0
+          borderBottom: '2px solid #e5e7eb',
+          flexShrink: 0,
+          backgroundColor: '#f9fafb'
         }}>
-          <h2 style={{ margin: 0, color: '#1f2937' }}>{data.title}</h2>
+          <h2 style={{ margin: 0, color: '#1f2937', fontSize: '20px' }}>{processLabel}</h2>
           <button
             onClick={onClose}
             style={{
-              background: 'none',
+              background: '#ef4444',
               border: 'none',
-              fontSize: '28px',
+              fontSize: '20px',
               cursor: 'pointer',
-              color: '#6b7280',
-              padding: 0,
-              width: '32px',
-              height: '32px',
-              lineHeight: '32px'
+              color: 'white',
+              padding: '4px 12px',
+              borderRadius: '6px',
+              fontWeight: 'bold'
             }}
           >
-            ×
+            ✕
           </button>
         </div>
 
-        {/* Scrollable Body */}
-        <div style={{ 
-          padding: '30px', 
-          overflowY: 'auto',
-          flex: 1
-        }}>
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ color: '#374151', fontSize: '16px', marginBottom: '8px' }}>Description</h3>
-            <p style={{ color: '#6b7280', lineHeight: '1.6', margin: 0, whiteSpace: 'pre-wrap' }}>{data.description}</p>
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ color: '#374151', fontSize: '16px', marginBottom: '8px' }}>Duration</h3>
-            <p style={{ color: '#6b7280', margin: 0 }}>{data.duration}</p>
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ color: '#374151', fontSize: '16px', marginBottom: '8px' }}>Roles Involved</h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {data.roles.map((role, idx) => (
-                <span
-                  key={idx}
-                  style={{
-                    background: '#dbeafe',
-                    color: '#1e40af',
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '14px'
-                  }}
-                >
-                  {role}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ color: '#374151', fontSize: '16px', marginBottom: '8px' }}>Deliverables</h3>
-            <ul style={{ color: '#6b7280', lineHeight: '1.8', marginLeft: '20px', margin: '0 0 0 20px' }}>
-              {data.deliverables.map((item, idx) => (
-                <li key={idx}>{item}</li>
-              ))}
-            </ul>
-          </div>
-
-          {data.links && data.links.length > 0 && (
-            <div>
-              <h3 style={{ color: '#374151', fontSize: '16px', marginBottom: '8px' }}>Related Links</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {data.links.map((link, idx) => (
-                  <a
-                    key={idx}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color: '#2563eb',
-                      textDecoration: 'none',
-                      padding: '8px 12px',
-                      background: '#f3f4f6',
-                      borderRadius: '6px',
-                      display: 'inline-block',
-                      transition: 'background 0.2s'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = '#e5e7eb'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = '#f3f4f6'}
-                  >
-                    {link.text} →
-                  </a>
-                ))}
-              </div>
+        {/* Scrollable Markdown Body */}
+        <div 
+          style={{ 
+            padding: '30px', 
+            overflowY: 'auto',
+            flex: 1,
+            lineHeight: '1.6'
+          }}
+          className="markdown-content"
+        >
+          {markdownContent ? (
+            <ReactMarkdown
+              components={{
+                h1: ({node, ...props}) => <h1 style={{ fontSize: '28px', marginBottom: '16px', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }} {...props} />,
+                h2: ({node, ...props}) => <h2 style={{ fontSize: '22px', marginTop: '24px', marginBottom: '12px', color: '#374151' }} {...props} />,
+                h3: ({node, ...props}) => <h3 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: '#4b5563' }} {...props} />,
+                p: ({node, ...props}) => <p style={{ marginBottom: '12px', color: '#6b7280' }} {...props} />,
+                ul: ({node, ...props}) => <ul style={{ marginLeft: '20px', marginBottom: '12px', color: '#6b7280' }} {...props} />,
+                ol: ({node, ...props}) => <ol style={{ marginLeft: '20px', marginBottom: '12px', color: '#6b7280' }} {...props} />,
+                li: ({node, ...props}) => <li style={{ marginBottom: '6px' }} {...props} />,
+                a: ({node, ...props}) => <a style={{ color: '#2563eb', textDecoration: 'underline' }} {...props} />,
+                strong: ({node, ...props}) => <strong style={{ fontWeight: 'bold', color: '#1f2937' }} {...props} />,
+                code: ({node, inline, ...props}) => 
+                  inline ? 
+                    <code style={{ backgroundColor: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', fontSize: '14px' }} {...props} /> :
+                    <code style={{ display: 'block', backgroundColor: '#f3f4f6', padding: '12px', borderRadius: '6px', fontSize: '14px', overflowX: 'auto' }} {...props} />
+              }}
+            >
+              {markdownContent}
+            </ReactMarkdown>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#9ca3af' }}>
+              <p style={{ fontSize: '18px', marginBottom: '8px' }}>📝 Documentation in progress</p>
+              <p style={{ fontSize: '14px' }}>This process documentation will be added soon.</p>
             </div>
           )}
         </div>
@@ -224,8 +188,29 @@ const Modal = ({ isOpen, onClose, data }) => {
 // Main Component
 // ==========================================
 function FlowComponent() {
-  const [modalData, setModalData] = useState(null);
+  const [modalMarkdown, setModalMarkdown] = useState(null);
+  const [modalLabel, setModalLabel] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Function to load markdown file
+  const loadMarkdown = async (mdFile, label) => {
+    try {
+      const response = await fetch(`${process.env.PUBLIC_URL}/processes/${mdFile}`);
+      if (response.ok) {
+        const text = await response.text();
+        setModalMarkdown(text);
+      } else {
+        setModalMarkdown(null); // File not found, show placeholder
+      }
+      setModalLabel(label);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error loading markdown:', error);
+      setModalMarkdown(null);
+      setModalLabel(label);
+      setIsModalOpen(true);
+    }
+  };
 
   // Convert config to ReactFlow nodes and edges
   const generateNodesAndEdges = () => {
@@ -282,14 +267,12 @@ function FlowComponent() {
     
     // Create process nodes using row/column grid positioning
     PROCESS_CONFIG.flow.forEach((step, idx) => {
-      // Row 1 = index 0, Row 2 = index 1, etc.
       const rowIndex = step.row - 1;
       const colIndex = step.col - 1;
       const lane = PROCESS_CONFIG.swimLanes[rowIndex];
       
       const x = START_X + (colIndex * (NODE_WIDTH + HORIZONTAL_SPACING));
-      // Center the node vertically in the lane (adjusted for taller boxes)
-      const y = START_Y + (rowIndex * LANE_HEIGHT) + (LANE_HEIGHT / 2) - 45; // 45 accounts for ~60px tall boxes plus padding
+      const y = START_Y + (rowIndex * LANE_HEIGHT) + (LANE_HEIGHT / 2) - 45;
 
       nodes.push({
         id: step.id,
@@ -298,10 +281,7 @@ function FlowComponent() {
         data: { 
           label: step.label,
           color: lane.color,
-          onClick: () => {
-            setModalData(step.modalData);
-            setIsModalOpen(true);
-          }
+          onClick: () => loadMarkdown(step.mdFile, step.label)
         },
         draggable: false,
       });
@@ -344,7 +324,7 @@ function FlowComponent() {
             Company Process Flow - Cradle to Grave
           </h1>
           <p style={{ margin: '5px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
-            Click any step to view detailed information • Flow automatically connects in order
+            Click any step to view detailed documentation • Markdown-powered content
           </p>
         </div>
 
@@ -370,7 +350,8 @@ function FlowComponent() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        data={modalData}
+        markdownContent={modalMarkdown}
+        processLabel={modalLabel}
       />
     </>
   );
