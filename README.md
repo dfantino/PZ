@@ -1,70 +1,88 @@
-# Getting Started with Create React App
+# Process Flow Documentation
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+An interactive, web-based process flow visualization tool for documenting company workflows from cradle to grave. Built with React and ReactFlow, featuring swimlane diagrams with clickable process steps and markdown-powered documentation.
 
-## Available Scripts
+## Overview
 
-In the project directory, you can run:
+This application provides a visual representation of end-to-end business processes, organized in swimlanes by department or functional area. Users can click on any process step to view detailed documentation, making it easy to understand complex workflows and maintain process documentation.
 
-### `npm start`
+## Key Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Interactive Swimlane Diagrams** - Visual process flow organized by department/function
+- **Clickable Process Steps** - Click any box to view detailed documentation
+- **Markdown-Powered Content** - Process documentation written in easy-to-edit markdown files
+- **Modular Architecture** - Add new processes by simply editing a config file and creating a markdown file
+- **Responsive Design** - Works on desktop and tablet devices
+- **Automatic Flow Connections** - Arrows automatically connect processes in sequence
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Project Structure
+```
+process-swimlane/
+├── public/
+│   ├── processes/           # Markdown files for each process step
+│   │   ├── process-a.md
+│   │   ├── process-b.md
+│   │   └── ...
+│   ├── favicon.ico
+│   ├── index.html
+│   └── manifest.json
+├── src/
+│   ├── App.js              # Main application component
+│   ├── processConfig.js    # Configuration file (swimlanes & process flow)
+│   └── index.js
+├── package.json
+└── README.md
+```
 
-### `npm test`
+## File Descriptions
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### `/public/processes/`
+Contains markdown files for each process step. Each file contains the detailed documentation that appears in the modal when users click a process box.
 
-### `npm run build`
+### `/src/processConfig.js`
+**Main configuration file** - This is the primary file you'll edit to manage the process flow:
+- Define swimlanes (departments/functions) with labels and colors
+- Define process steps with row/column positioning
+- Link each process to its markdown documentation file
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### `/src/App.js`
+Main React application component that renders the flow diagram, handles user interactions, and displays modals with markdown content.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## How to Add a New Process
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Edit `src/processConfig.js`** - Add a new entry to the `flow` array:
+```javascript
+   { id: "g", row: 2, col: 5, label: "New Process", mdFile: "process-g.md" }
+```
 
-### `npm run eject`
+2. **Create the markdown file** - Add `public/processes/process-g.md` with your documentation
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+3. **Save and refresh** - The new process box will automatically appear in the diagram
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Local Development
+```bash
+# Install dependencies
+npm install
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# Start development server
+npm start
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# Build for production
+npm run build
 
-## Learn More
+# Deploy to GitHub Pages
+npm run deploy
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Technologies Used
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **React** - UI framework
+- **ReactFlow** - Flow diagram library
+- **react-markdown** - Markdown rendering
+- **GitHub Pages** - Hosting
 
-### Code Splitting
+## Maintenance
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+To update process documentation, simply edit the markdown files in `public/processes/`. No code changes required!
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+To modify the flow structure (add/remove processes, change swimlanes), edit `src/processConfig.js`.

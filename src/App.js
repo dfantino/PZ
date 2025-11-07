@@ -29,48 +29,91 @@ if (typeof document !== 'undefined' && !document.getElementById('hide-handles'))
 // Custom Node Component
 // ==========================================
 const CustomNode = ({ data }) => {
+  const [showTooltip, setShowTooltip] = React.useState(false);
+
   return (
-    <div
-      style={{
-        padding: '15px 25px',
-        borderRadius: '8px',
-        background: data.color,
-        color: 'white',
-        border: '2px solid white',
-        cursor: 'pointer',
-        fontWeight: '600',
-        fontSize: '14px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        transition: 'all 0.2s',
-        minWidth: '150px',
-        maxWidth: '150px',
-        minHeight: '60px',
-        textAlign: 'center',
-        position: 'relative',
-        zIndex: 10,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        lineHeight: '1.3'
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (data.onClick) {
-          data.onClick();
-        }
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'scale(1.05)';
-        e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.2)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'scale(1)';
-        e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
-      }}
-    >
-      <Handle type="target" position={Position.Left} style={{ opacity: 0, pointerEvents: 'none' }} />
-      <span>{data.label}</span>
-      <Handle type="source" position={Position.Right} style={{ opacity: 0, pointerEvents: 'none' }} />
+    <div style={{ position: 'relative' }}>
+      <div
+        style={{
+          padding: '15px 25px',
+          borderRadius: '8px',
+          background: data.color,
+          color: 'white',
+          border: '2px solid white',
+          cursor: 'pointer',
+          fontWeight: '600',
+          fontSize: '14px',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+          transition: 'all 0.2s',
+          minWidth: '150px',
+          maxWidth: '150px',
+          minHeight: '60px',
+          textAlign: 'center',
+          position: 'relative',
+          zIndex: 10,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          lineHeight: '1.3'
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (data.onClick) {
+            data.onClick();
+          }
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.05)';
+          e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.2)';
+          setShowTooltip(true);
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+          setShowTooltip(false);
+        }}
+      >
+        <Handle type="target" position={Position.Left} style={{ opacity: 0, pointerEvents: 'none' }} />
+        <span>{data.label}</span>
+        <Handle type="source" position={Position.Right} style={{ opacity: 0, pointerEvents: 'none' }} />
+      </div>
+      
+      {/* Tooltip */}
+      {showTooltip && data.swimlaneName && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-35px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#1f2937',
+            color: 'white',
+            padding: '6px 12px',
+            borderRadius: '6px',
+            fontSize: '12px',
+            fontWeight: '500',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
+            zIndex: 1000,
+            pointerEvents: 'none'
+          }}
+        >
+          {data.swimlaneName}
+          <div
+            style={{
+              position: 'absolute',
+              top: '-4px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 0,
+              height: 0,
+              borderLeft: '5px solid transparent',
+              borderRight: '5px solid transparent',
+              borderBottom: '5px solid #1f2937'
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -81,6 +124,18 @@ const nodeTypes = { custom: CustomNode };
 // Modal Component with Markdown Support
 // ==========================================
 const Modal = ({ isOpen, onClose, markdownContent, processLabel }) => {
+  // Add escape key listener
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -155,14 +210,14 @@ const Modal = ({ isOpen, onClose, markdownContent, processLabel }) => {
           {markdownContent ? (
             <ReactMarkdown
               components={{
-                h1: ({node, ...props}) => <h1 style={{ fontSize: '28px', marginBottom: '16px', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }} {...props} />,
-                h2: ({node, ...props}) => <h2 style={{ fontSize: '22px', marginTop: '24px', marginBottom: '12px', color: '#374151' }} {...props} />,
-                h3: ({node, ...props}) => <h3 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: '#4b5563' }} {...props} />,
+                h1: ({node, children, ...props}) => <h1 style={{ fontSize: '28px', marginBottom: '16px', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }} {...props}>{children}</h1>,
+                h2: ({node, children, ...props}) => <h2 style={{ fontSize: '22px', marginTop: '24px', marginBottom: '12px', color: '#374151' }} {...props}>{children}</h2>,
+                h3: ({node, children, ...props}) => <h3 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: '#4b5563' }} {...props}>{children}</h3>,
                 p: ({node, ...props}) => <p style={{ marginBottom: '12px', color: '#6b7280' }} {...props} />,
                 ul: ({node, ...props}) => <ul style={{ marginLeft: '20px', marginBottom: '12px', color: '#6b7280' }} {...props} />,
                 ol: ({node, ...props}) => <ol style={{ marginLeft: '20px', marginBottom: '12px', color: '#6b7280' }} {...props} />,
                 li: ({node, ...props}) => <li style={{ marginBottom: '6px' }} {...props} />,
-                a: ({node, ...props}) => <a style={{ color: '#2563eb', textDecoration: 'underline' }} {...props} />,
+                a: ({node, children, ...props}) => <a style={{ color: '#2563eb', textDecoration: 'underline' }} {...props}>{children}</a>,
                 strong: ({node, ...props}) => <strong style={{ fontWeight: 'bold', color: '#1f2937' }} {...props} />,
                 code: ({node, inline, ...props}) => 
                   inline ? 
@@ -281,6 +336,7 @@ function FlowComponent() {
         data: { 
           label: step.label,
           color: lane.color,
+          swimlaneName: lane.label,
           onClick: () => loadMarkdown(step.mdFile, step.label)
         },
         draggable: false,
@@ -338,11 +394,13 @@ function FlowComponent() {
             nodesConnectable={false}
             elementsSelectable={true}
             fitView
-            fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
+            fitViewOptions={{ padding: 0.2 }}
+            minZoom={0.1}
+            maxZoom={2}
             zoomOnDoubleClick={false}
           >
             <Background color="#e2e8f0" />
-            <Controls />
+            <Controls showInteractive={false} />
           </ReactFlow>
         </div>
       </div>

@@ -12,24 +12,24 @@ export const START_Y = 100;
 
 export const PROCESS_CONFIG = {
   // Swimlane labels and colors (one per row)
-  swimLanes: [
-    { id: "lane1", label: "Sales", color: "#3b82f6" },
-    { id: "lane2", label: "Program Management", color: "#10b981" },
-    { id: "lane3", label: "Manufacturing", color: "#ef4444" },
-    { id: "lane5", label: "Mechanical", color: "#f59e0b" },
-    { id: "lane6", label: "Electrical/RF", color: "#000000ff" },
-    { id: "lane7", label: "Digital", color: "#b87a7aff" },
-    { id: "lane8", label: "Software", color: "#b41717ff" },
-    { id: "lane9", label: "I&T", color: "#970b97ff" },
-    { id: "lane10", label: "Document Control", color: "#0f0f" },
-    { id: "lane11", label: "Planning", color: "#808080" },
-    { id: "lane12", label: "Purchasing", color: "#808080" },
-    { id: "lane13", label: "Receiving", color: "#808080" },
-    { id: "lane14", label: "Quality", color: "#808080" },
-    { id: "lane15", label: "Shipping", color: "#808080" },
-    { id: "lane16", label: "Accounting", color: "#808080" },
-    { id: "lane17", label: "Repairs", color: "#808080" },
-  ],
+swimLanes: [
+  { id: "lane1", label: "Sales", color: "#3b82f6" },                    // Blue
+  { id: "lane2", label: "Program Management", color: "#8b5cf6" },       // Purple
+  { id: "lane3", label: "Manufacturing", color: "#ef4444" },            // Red
+  { id: "lane5", label: "Mechanical", color: "#f59e0b" },               // Orange
+  { id: "lane6", label: "Electrical/RF", color: "#06b6d4" },            // Cyan
+  { id: "lane7", label: "Digital", color: "#ec4899" },                  // Pink
+  { id: "lane8", label: "Software", color: "#10b981" },                 // Green
+  { id: "lane9", label: "I&T", color: "#6366f1" },                      // Indigo
+  { id: "lane10", label: "Document Control", color: "#84cc16" },        // Lime
+  { id: "lane11", label: "Planning", color: "#14b8a6" },                // Teal
+  { id: "lane12", label: "Purchasing", color: "#f97316" },              // Orange-Red
+  { id: "lane13", label: "Receiving", color: "#a855f7" },               // Purple-Violet
+  { id: "lane14", label: "Quality", color: "#0ea5e9" },                 // Sky Blue
+  { id: "lane15", label: "Shipping", color: "#22c55e" },                // Emerald
+  { id: "lane16", label: "Accounting", color: "#eab308" },              // Yellow
+  { id: "lane17", label: "Repairs", color: "#64748b" },                 // Slate
+],
 
   // Define your process flow using ROW, COLUMN, and MARKDOWN FILE
   // Just add a new line here and create the .md file later
