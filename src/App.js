@@ -33,6 +33,14 @@ function FlowComponent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const loadMarkdown = async (mdFile, label) => {
+    // If mdFile is empty or not provided, show placeholder
+    if (!mdFile || mdFile.trim() === '') {
+      setModalMarkdown(null);
+      setModalLabel(label);
+      setIsModalOpen(true);
+      return;
+    }
+
     try {
       const response = await fetch(`${process.env.PUBLIC_URL}/processes/${mdFile}`);
       if (response.ok) {
