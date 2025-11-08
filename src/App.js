@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ReactFlow, { 
   ReactFlowProvider, 
   Background, 
   Controls,
   useNodesState,
   useEdgesState,
-  Handle,
-  Position
 } from "reactflow";
-import ReactMarkdown from 'react-markdown';
 import "reactflow/dist/style.css";
-import { LANE_HEIGHT, NODE_WIDTH, HORIZONTAL_SPACING, START_X, START_Y, PROCESS_CONFIG } from './processConfig';
+import CustomNode from './components/CustomNode';
+import Modal from './components/Modal';
+import { LANE_HEIGHT, NODE_WIDTH, HORIZONTAL_SPACING, START_X, START_Y } from './constants';
+import { PROCESS_CONFIG } from './processConfig';
 
 // Hide connection handles but keep edges visible
 const hideHandlesStyle = document.createElement('style');
@@ -25,229 +25,13 @@ if (typeof document !== 'undefined' && !document.getElementById('hide-handles'))
   document.head.appendChild(hideHandlesStyle);
 }
 
-// ==========================================
-// Custom Node Component
-// ==========================================
-const CustomNode = ({ data }) => {
-  const [showTooltip, setShowTooltip] = React.useState(false);
-
-  return (
-    <div style={{ position: 'relative' }}>
-      <div
-        style={{
-          padding: '15px 25px',
-          borderRadius: '8px',
-          background: data.color,
-          color: 'white',
-          border: '2px solid white',
-          cursor: 'pointer',
-          fontWeight: '600',
-          fontSize: '14px',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-          transition: 'all 0.2s',
-          minWidth: '150px',
-          maxWidth: '150px',
-          minHeight: '60px',
-          textAlign: 'center',
-          position: 'relative',
-          zIndex: 10,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          lineHeight: '1.3'
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (data.onClick) {
-            data.onClick();
-          }
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.05)';
-          e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.2)';
-          setShowTooltip(true);
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
-          setShowTooltip(false);
-        }}
-      >
-        <Handle type="target" position={Position.Left} style={{ opacity: 0, pointerEvents: 'none' }} />
-        <span>{data.label}</span>
-        <Handle type="source" position={Position.Right} style={{ opacity: 0, pointerEvents: 'none' }} />
-      </div>
-      
-      {/* Tooltip */}
-      {showTooltip && data.swimlaneName && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-35px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: '#1f2937',
-            color: 'white',
-            padding: '6px 12px',
-            borderRadius: '6px',
-            fontSize: '12px',
-            fontWeight: '500',
-            whiteSpace: 'nowrap',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-            zIndex: 1000,
-            pointerEvents: 'none'
-          }}
-        >
-          {data.swimlaneName}
-          <div
-            style={{
-              position: 'absolute',
-              top: '-4px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 0,
-              height: 0,
-              borderLeft: '5px solid transparent',
-              borderRight: '5px solid transparent',
-              borderBottom: '5px solid #1f2937'
-            }}
-          />
-        </div>
-      )}
-    </div>
-  );
-};
-
 const nodeTypes = { custom: CustomNode };
 
-// ==========================================
-// Modal Component with Markdown Support
-// ==========================================
-const Modal = ({ isOpen, onClose, markdownContent, processLabel }) => {
-  // Add escape key listener
-  useEffect(() => {
-    const handleEscape = (event) => {
-      if (event.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0,0,0,0.7)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 9999,
-        padding: '20px'
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: 'white',
-          borderRadius: '12px',
-          maxWidth: '800px',
-          width: '100%',
-          maxHeight: '85vh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          padding: '24px 30px',
-          borderBottom: '2px solid #e5e7eb',
-          flexShrink: 0,
-          backgroundColor: '#f9fafb'
-        }}>
-          <h2 style={{ margin: 0, color: '#1f2937', fontSize: '20px' }}>{processLabel}</h2>
-          <button
-            onClick={onClose}
-            style={{
-              background: '#ef4444',
-              border: 'none',
-              fontSize: '20px',
-              cursor: 'pointer',
-              color: 'white',
-              padding: '4px 12px',
-              borderRadius: '6px',
-              fontWeight: 'bold'
-            }}
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Scrollable Markdown Body */}
-        <div 
-          style={{ 
-            padding: '30px', 
-            overflowY: 'auto',
-            flex: 1,
-            lineHeight: '1.6'
-          }}
-          className="markdown-content"
-        >
-          {markdownContent ? (
-            <ReactMarkdown
-              components={{
-                h1: ({node, children, ...props}) => <h1 style={{ fontSize: '28px', marginBottom: '16px', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }} {...props}>{children}</h1>,
-                h2: ({node, children, ...props}) => <h2 style={{ fontSize: '22px', marginTop: '24px', marginBottom: '12px', color: '#374151' }} {...props}>{children}</h2>,
-                h3: ({node, children, ...props}) => <h3 style={{ fontSize: '18px', marginTop: '20px', marginBottom: '10px', color: '#4b5563' }} {...props}>{children}</h3>,
-                p: ({node, ...props}) => <p style={{ marginBottom: '12px', color: '#6b7280' }} {...props} />,
-                ul: ({node, ...props}) => <ul style={{ marginLeft: '20px', marginBottom: '12px', color: '#6b7280' }} {...props} />,
-                ol: ({node, ...props}) => <ol style={{ marginLeft: '20px', marginBottom: '12px', color: '#6b7280' }} {...props} />,
-                li: ({node, ...props}) => <li style={{ marginBottom: '6px' }} {...props} />,
-                a: ({node, children, ...props}) => <a style={{ color: '#2563eb', textDecoration: 'underline' }} {...props}>{children}</a>,
-                strong: ({node, ...props}) => <strong style={{ fontWeight: 'bold', color: '#1f2937' }} {...props} />,
-                code: ({node, inline, ...props}) => 
-                  inline ? 
-                    <code style={{ backgroundColor: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', fontSize: '14px' }} {...props} /> :
-                    <code style={{ display: 'block', backgroundColor: '#f3f4f6', padding: '12px', borderRadius: '6px', fontSize: '14px', overflowX: 'auto' }} {...props} />
-              }}
-            >
-              {markdownContent}
-            </ReactMarkdown>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#9ca3af' }}>
-              <p style={{ fontSize: '18px', marginBottom: '8px' }}>📝 Documentation in progress</p>
-              <p style={{ fontSize: '14px' }}>This process documentation will be added soon.</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ==========================================
-// Main Component
-// ==========================================
 function FlowComponent() {
   const [modalMarkdown, setModalMarkdown] = useState(null);
   const [modalLabel, setModalLabel] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Function to load markdown file
   const loadMarkdown = async (mdFile, label) => {
     try {
       const response = await fetch(`${process.env.PUBLIC_URL}/processes/${mdFile}`);
@@ -255,7 +39,7 @@ function FlowComponent() {
         const text = await response.text();
         setModalMarkdown(text);
       } else {
-        setModalMarkdown(null); // File not found, show placeholder
+        setModalMarkdown(null);
       }
       setModalLabel(label);
       setIsModalOpen(true);
@@ -267,12 +51,13 @@ function FlowComponent() {
     }
   };
 
-  // Convert config to ReactFlow nodes and edges
   const generateNodesAndEdges = () => {
     const nodes = [];
     const edges = [];
     
-    // Add swimlane background rectangles
+    const maxCol = PROCESS_CONFIG.flow.reduce((max, step) => Math.max(max, step.col), 0);
+    const swimlaneWidth = (maxCol * (NODE_WIDTH + HORIZONTAL_SPACING)) + 300;
+    
     PROCESS_CONFIG.swimLanes.forEach((lane, idx) => {
       nodes.push({
         id: `lane-bg-${lane.id}`,
@@ -286,7 +71,7 @@ function FlowComponent() {
           border: 'none',
           borderTop: '2px solid #cbd5e1',
           borderBottom: '2px solid #cbd5e1',
-          width: '2000px',
+          width: `${swimlaneWidth}px`,
           height: `${LANE_HEIGHT}px`,
           pointerEvents: 'none',
           zIndex: -1,
@@ -294,7 +79,6 @@ function FlowComponent() {
       });
     });
     
-    // Add swimlane label nodes on the left
     PROCESS_CONFIG.swimLanes.forEach((lane, idx) => {
       nodes.push({
         id: `lane-label-${lane.id}`,
@@ -320,7 +104,6 @@ function FlowComponent() {
       });
     });
     
-    // Create process nodes using row/column grid positioning
     PROCESS_CONFIG.flow.forEach((step, idx) => {
       const rowIndex = step.row - 1;
       const colIndex = step.col - 1;
@@ -337,23 +120,24 @@ function FlowComponent() {
           label: step.label,
           color: lane.color,
           swimlaneName: lane.label,
-          onClick: () => loadMarkdown(step.mdFile, step.label)
+          onClick: () => loadMarkdown(step.mdFile, step.label),
         },
         draggable: false,
       });
+    });
 
-      // Create edge to next step in flow
+    PROCESS_CONFIG.flow.forEach((step, idx) => {
       if (idx < PROCESS_CONFIG.flow.length - 1) {
         edges.push({
           id: `e-${step.id}-${PROCESS_CONFIG.flow[idx + 1].id}`,
           source: step.id,
           target: PROCESS_CONFIG.flow[idx + 1].id,
           animated: false,
-          style: { stroke: '#94a3b8', strokeWidth: 2 },
+          style: { stroke: '#000000', strokeWidth: 2 },
           type: 'smoothstep',
           markerEnd: {
             type: 'arrowclosed',
-            color: '#94a3b8',
+            color: '#000000',
           },
         });
       }
@@ -369,7 +153,6 @@ function FlowComponent() {
   return (
     <>
       <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
-        {/* Header */}
         <div style={{
           background: 'white',
           padding: '15px 20px',
@@ -384,7 +167,6 @@ function FlowComponent() {
           </p>
         </div>
 
-        {/* ReactFlow Canvas */}
         <div style={{ flex: 1, background: '#f8fafc' }}>
           <ReactFlow
             nodes={nodes}

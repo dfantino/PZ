@@ -1,0 +1,153 @@
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+/* Modal Container */
+.modal-container {
+  background: white;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 30px;
+  border-bottom: 2px solid #e5e7eb;
+  flex-shrink: 0;
+  background-color: #f9fafb;
+}
+
+.modal-title {
+  margin: 0;
+  color: #1f2937;
+  font-size: 20px;
+}
+
+.modal-close-btn {
+  background: #ef4444;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.modal-close-btn:hover {
+  background: #dc2626;
+}
+
+/* Modal Body */
+.modal-body {
+  padding: 30px;
+  overflow-y: auto;
+  flex: 1;
+  line-height: 1.6;
+}
+
+/* Placeholder */
+.modal-placeholder {
+  text-align: center;
+  padding: 40px;
+  color: #9ca3af;
+}
+
+.placeholder-title {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.placeholder-text {
+  font-size: 14px;
+}
+
+/* Markdown Styles */
+.md-h1 {
+  font-size: 28px;
+  margin-bottom: 16px;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.md-h2 {
+  font-size: 22px;
+  margin-top: 24px;
+  margin-bottom: 12px;
+  color: #374151;
+}
+
+.md-h3 {
+  font-size: 18px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #4b5563;
+}
+
+.md-p {
+  margin-bottom: 12px;
+  color: #6b7280;
+}
+
+.md-ul, .md-ol {
+  margin-left: 20px;
+  margin-bottom: 12px;
+  color: #6b7280;
+}
+
+.md-li {
+  margin-bottom: 6px;
+}
+
+.md-a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.md-a:hover {
+  color: #1d4ed8;
+}
+
+.md-strong {
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.md-code-inline {
+  background-color: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+}
+
+.md-code-block {
+  display: block;
+  background-color: #f3f4f6;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+}
