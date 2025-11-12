@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import ReactFlow, { 
   ReactFlowProvider, 
   Background, 
@@ -19,6 +19,11 @@ hideHandlesStyle.innerHTML = `
     opacity: 0 !important;
     pointer-events: none !important;
   }
+  
+  .swimlane-label-clickable:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 0 20px rgba(255, 255, 255, 0.4) !important;
+    filter: brightness(1.15) !important;
+  }
 `;
 if (typeof document !== 'undefined' && !document.getElementById('hide-handles')) {
   hideHandlesStyle.id = 'hide-handles';
@@ -32,7 +37,7 @@ function FlowComponent() {
   const [modalLabel, setModalLabel] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const loadMarkdown = async (mdFile, label) => {
+  const loadMarkdown = async (mdFile, label, folder = 'processes') => {
     // If mdFile is empty or not provided, show placeholder
     if (!mdFile || mdFile.trim() === '') {
       setModalMarkdown(null);
@@ -42,10 +47,16 @@ function FlowComponent() {
     }
 
     try {
-      const response = await fetch(`${process.env.PUBLIC_URL}/processes/${mdFile}`);
+      const response = await fetch(`${process.env.PUBLIC_URL}/${folder}/${mdFile}`);
       if (response.ok) {
         const text = await response.text();
-        setModalMarkdown(text);
+        // Check if we got actual markdown content or HTML error page
+        if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+          // Got HTML instead of markdown - file doesn't exist
+          setModalMarkdown(null);
+        } else {
+          setModalMarkdown(text);
+        }
       } else {
         setModalMarkdown(null);
       }
@@ -94,7 +105,7 @@ function FlowComponent() {
         position: { x: -225, y: START_Y + (idx * LANE_HEIGHT) },
         data: { label: lane.label },
         draggable: false,
-        selectable: false,
+        selectable: true,
         style: {
           background: lane.color,
           color: 'white',
@@ -108,7 +119,10 @@ function FlowComponent() {
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: '16px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
         },
+        className: 'swimlane-label-clickable',
       });
     });
     
@@ -158,6 +172,18 @@ function FlowComponent() {
   const [nodes] = useNodesState(initialNodes);
   const [edges] = useEdgesState(initialEdges);
 
+  const handleNodeClick = useCallback((event, node) => {
+    // Check if it's a swimlane label
+    if (node.id.startsWith('lane-label-')) {
+      const laneId = node.id.replace('lane-label-', '');
+      const lane = PROCESS_CONFIG.swimLanes.find(l => l.id === laneId);
+      if (lane) {
+        // Pass empty string if deptMdFile doesn't exist to trigger placeholder
+        loadMarkdown(lane.deptMdFile || '', lane.label, 'departments');
+      }
+    }
+  }, []);
+
   return (
     <>
       <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -183,6 +209,7 @@ function FlowComponent() {
             nodesDraggable={false}
             nodesConnectable={false}
             elementsSelectable={true}
+            onNodeClick={handleNodeClick}
             fitView
             fitViewOptions={{ padding: 0.2 }}
             minZoom={0.1}
