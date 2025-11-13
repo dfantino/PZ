@@ -1,48 +1,48 @@
-# Process Overview
-This process captures customer orders and enters them into the ERP system, creating the foundation for all downstream manufacturing and delivery activities. It ensures accurate order data flows through the entire organization.
+# Process B: Quoting Phase
 
-## Responsibilities
-- **Primary Department**: Sales
-- **Supporting Roles**: Customer Service, Order Management
-- **Key Stakeholders**: Program Management, Planning, Accounting
+## Overview
+This phase involves preparing a comprehensive quote for the customer, including cost estimates, capacity validation, and technical feasibility review. Multiple departments work in parallel to ensure accurate pricing and realistic delivery commitments.
+
+## Participating Roles & Responsibilities
+
+### Sales (Primary Driver)
+Leads the quoting process, coordinates inputs from other teams, and prepares the final quote package for customer submission.
+
+### Program Management (Supporting)
+Provides engineering effort estimates, project timeline projections, and resource availability assessments.
+
+### Manufacturing (Supporting)
+Validates production capacity, confirms material availability, and verifies lead time feasibility.
 
 ## Inputs
-What this process receives to begin work:
-- Customer Purchase Order (PO)
-- Customer specifications or requirements
-- Approved pricing from Sales team
-- Customer contact information
-- Delivery requirements and timeline
+- Customer RFQ from Process A (Customer Inquiry)
+- Technical specifications and requirements
+- Pricing guidelines and discount approvals
+- Historical project data for similar products
 
-## Process Steps
-1. **Validate PO**: Verify customer PO matches quote, check for complete information
-2. **Enter in ERP**: Create new sales order in ERP system with all customer details
-3. **Assign Project Code**: Generate internal project number for tracking
-4. **Route for Approval**: Send order through approval workflow (credit check, management review)
-5. **Notify Stakeholders**: Alert Program Management and Planning of new order
+## Process Flow
+1. Sales receives validated customer inquiry
+2. Sales drafts initial quote (primary task)
+3. **Parallel activities:**
+   - PM provides effort estimates
+   - Manufacturing performs capacity check
+4. Sales consolidates all inputs
+5. Quote reviewed and approved internally
+6. Ready for submission (Process C)
 
 ## Outputs
-What this process produces for the next stage:
-- Sales Order created in ERP system
-- Project number assigned
-- Order acknowledgment sent to customer
-- Notification to Program Management to begin project planning
-- Planning receives order for scheduling
+- Complete quote package with pricing
+- Detailed cost breakdown
+- Delivery timeline and milestones
+- Terms and conditions
+- Feeds into Process C (Submit Quote)
 
-## Tools & Systems
-- Company ERP System (SAP/Oracle/etc.)
-- CRM system for customer data
-- Email notification system
-- Order Entry template
+## Key Metrics
+- Quote turnaround time: Target 3-5 business days
+- Quote-to-order conversion rate
+- Pricing accuracy (vs. actual costs)
 
 ## References
-- [Work Instruction WI-001: Order Entry Procedures](https://company.sharepoint.com/wi-001)
-- [Form: Customer Order Entry Checklist](https://company.sharepoint.com/forms/order-checklist.pdf)
-- [ERP User Guide: Sales Order Module](https://company.intranet.com/erp/sales-orders)
-- [Credit Approval Policy](https://company.intranet.com/policies/credit)
-
-## Notes
-- All orders over $50K require VP approval before processing
-- International orders require export compliance review
-- Rush orders (< 2 week lead time) need expedite fee approval
-- Ensure all customer contact information is current in CRM
+- [Quote Template](https://company.sharepoint.com/templates/quote-template.docx)
+- [Pricing Calculator](https://company.sharepoint.com/tools/pricing)
+- [Quote Approval Matrix](https://company.intranet.com/policies/approvals)
