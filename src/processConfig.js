@@ -13,33 +13,44 @@ export const PROCESS_CONFIG = {
     { id: "lane1", label: "Sales", color: "#3b82f6", deptMdFile: "sales.md" },
     { id: "lane2", label: "Program Management", color: "#8b5cf6", deptMdFile: "program-management.md" },
     { id: "lane3", label: "Manufacturing", color: "#ef4444", deptMdFile: "manufacturing.md" },
-    { id: "lane5", label: "Mechanical", color: "#f59e0b", deptMdFile: "mechanical.md" },
-    { id: "lane6", label: "Electrical/RF", color: "#06b6d4", deptMdFile: "electrical-rf.md" },
-    { id: "lane7", label: "Digital", color: "#ec4899", deptMdFile: "digital.md" },
-    { id: "lane8", label: "Software", color: "#10b981", deptMdFile: "software.md" },
-    { id: "lane9", label: "I&T", color: "#6366f1", deptMdFile: "i-and-t.md" },
-    { id: "lane10", label: "Document Control", color: "#84cc16", deptMdFile: "document-control.md" },
-    { id: "lane11", label: "Planning", color: "#14b8a6", deptMdFile: "planning.md" },
-    { id: "lane12", label: "Purchasing", color: "#f97316", deptMdFile: "purchasing.md" },
-    { id: "lane13", label: "Receiving", color: "#a855f7", deptMdFile: "receiving.md" },
-    { id: "lane14", label: "Quality", color: "#0ea5e9", deptMdFile: "quality.md" },
-    { id: "lane15", label: "Shipping", color: "#22c55e", deptMdFile: "shipping.md" },
-    { id: "lane16", label: "Accounting", color: "#eab308", deptMdFile: "accounting.md" },
-    { id: "lane17", label: "Repairs", color: "#64748b", deptMdFile: "repairs.md" },
+    { id: "lane4", label: "Mechanical", color: "#f59e0b", deptMdFile: "mechanical.md" },
+    { id: "lane5", label: "Electrical/RF", color: "#06b6d4", deptMdFile: "electrical-rf.md" },
+    { id: "lane6", label: "Digital", color: "#ec4899", deptMdFile: "digital.md" },
   ],
 
-  // Define your process flow using ROW, COLUMN, and MARKDOWN FILE
-  // Just add a new line here and create the .md file later
+  // Process phase definitions (for column headers)
+  processPhases: [
+    { col: 1, name: "Customer Inquiry", mdFile: "process-a.md" },
+    { col: 2, name: "Quoting", mdFile: "process-b.md" },
+    { col: 3, name: "Submit Quote", mdFile: "process-c.md" },
+    { col: 4, name: "Order Entry", mdFile: "process-d.md" },
+    { col: 5, name: "Project Kickoff", mdFile: "process-e.md" },
+    { col: 6, name: "Integration", mdFile: "process-f.md" },
+  ],
+
+  // Individual task definitions - point to task-specific files
   flow: [
-    { id: "a", row: 1, col: 1, label: "Process A", mdFile: "process-a.md" },
-    { id: "b", row: 1, col: 2, label: "Process B", mdFile: "process-b.md" },
-    { id: "c", row: 2, col: 3, label: "Process C", mdFile: "process-c.md" },
-    { id: "d", row: 2, col: 4, label: "Process D", mdFile: "process-d.md" },
-    { id: "e", row: 3, col: 5, label: "Process E", mdFile: "process-e.md" },
-    { id: "f", row: 4, col: 6, label: "Process F", mdFile: "process-f.md" },
-    { id: "g", row: 5, col: 7, label: "Process G", mdFile: "" },
-    { id: "h", row: 5, col: 8, label: "Process H", mdFile: "" },
-    { id: "i", row: 6, col: 9, label: "Process I", mdFile: "" },
-    { id: "j", row: 9, col: 10, label: "Process J", mdFile: "" }
+    // Column 1: Single box (Sales) - Primary driver
+    { id: "a", row: 1, col: 1, label: "Customer Inquiry", primary: true, mdFile: "task-customer-inquiry.md" },
+    
+    // Column 2: THREE boxes - Sales is primary driver
+    { id: "b1", row: 1, col: 2, label: "Draft Quote", primary: true, mdFile: "task-draft-quote.md" },
+    { id: "b2", row: 2, col: 2, label: "Give Estimates", mdFile: "task-give-estimates.md" },
+    { id: "b3", row: 3, col: 2, label: "Capacity Check", mdFile: "task-capacity-check.md" },
+    
+    // Column 3: Single box (Sales) - Sales still primary
+    { id: "c", row: 1, col: 3, label: "Submit Quote", primary: true, mdFile: "task-submit-quote.md" },
+    
+    // Column 4: TWO boxes - PM becomes primary driver
+    { id: "d1", row: 1, col: 4, label: "Order Entry", mdFile: "task-order-entry.md" },
+    { id: "d2", row: 2, col: 4, label: "Project Setup", primary: true, mdFile: "task-project-setup.md" },
+    
+    // Column 5: THREE boxes - PM continues as primary
+    { id: "e1", row: 2, col: 5, label: "Kickoff Meeting", primary: true, mdFile: "task-kickoff-meeting.md" },
+    { id: "e2", row: 4, col: 5, label: "Mech Design", mdFile: "task-mech-design.md" },
+    { id: "e3", row: 5, col: 5, label: "Elec Design", mdFile: "task-elec-design.md" },
+    
+    // Column 6: Single box (Digital) - Digital takes over
+    { id: "f", row: 6, col: 6, label: "Integration", primary: true, mdFile: "task-integration.md" },
   ],
 };
