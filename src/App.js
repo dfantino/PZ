@@ -8,6 +8,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import CustomNode from './components/CustomNode';
+import ProcessHeader from './components/ProcessHeader';
 import Modal from './components/Modal';
 import { LANE_HEIGHT, NODE_WIDTH, HORIZONTAL_SPACING, START_X, START_Y } from './constants';
 import { PROCESS_CONFIG } from './processConfig';
@@ -35,7 +36,10 @@ if (typeof document !== 'undefined' && !document.getElementById('hide-handles'))
   document.head.appendChild(hideHandlesStyle);
 }
 
-const nodeTypes = { custom: CustomNode };
+const nodeTypes = { 
+  custom: CustomNode,
+  processHeader: ProcessHeader
+};
 
 function FlowComponent() {
   const [modalMarkdown, setModalMarkdown] = useState(null);
@@ -94,24 +98,29 @@ function FlowComponent() {
     const columns = Object.keys(columnGroups).map(Number).sort((a, b) => a - b);
     
     // Add process phase headers (column headers)
-    // Calculate center position based on actual task boxes in each column
+    // Left-align headers and task boxes for simple, consistent alignment
     columns.forEach((col, colIndex) => {
-      // Find any task box in this column to get the actual X position
-      const sampleTask = columnGroups[col][0];
-      const taskColIndex = sampleTask.col - 1;
+      // Get the column index
+      const colIndexForPosition = col - 1;
       
-      // Calculate task box position (same logic as task generation)
-      const taskX = START_X + (taskColIndex * (NODE_WIDTH + HORIZONTAL_SPACING));
-      const taskCenterX = taskX + (NODE_WIDTH / 2);
+      // Calculate column left edge (where task boxes start)
+      const columnLeft = START_X + (colIndexForPosition * (NODE_WIDTH + HORIZONTAL_SPACING));
       
-      // Position header to align with task boxes (same X position)
-      const headerX = taskX; // Same as task box
-      const headerY = START_Y - 80;
+      // Left-align header with task boxes, shifted 10px left to account for header width expansion
+      const headerX = columnLeft - 10;
+      const headerY = START_Y - 90;
+      
+      // Task boxes will also be left-aligned at columnLeft
+      const taskCenterX = columnLeft + (NODE_WIDTH / 2);
       
       // Add alternating column background shading centered on tasks
       const isEvenColumn = colIndex % 2 === 0;
       const bgWidth = NODE_WIDTH + HORIZONTAL_SPACING;
       const bgX = taskCenterX - (bgWidth / 2);
+      
+      // Get process phase info for onClick handler
+      const processPhase = PROCESS_CONFIG.processPhases?.find(p => p.col === col);
+      const processName = processPhase?.name || `Process ${String.fromCharCode(64 + col)}`;
       
       nodes.push({
         id: `column-bg-${col}`,
@@ -134,25 +143,18 @@ function FlowComponent() {
       
       nodes.push({
         id: `phase-header-${col}`,
-        type: 'default',
+        type: 'processHeader',
         position: { x: headerX, y: headerY },
-        data: { label: `Process ${String.fromCharCode(64 + col)}` }, // A, B, C, etc.
-        draggable: false,
-        selectable: false,
-        style: {
-          background: '#1f2937',
-          color: 'white',
-          border: '2px solid #374151',
-          borderRadius: '8px',
-          fontWeight: 'bold',
-          padding: '10px 20px',
-          minWidth: `${NODE_WIDTH}px`, // Match task box inner width
-          maxWidth: `${NODE_WIDTH}px`,
-          textAlign: 'center',
-          fontSize: '14px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          boxSizing: 'border-box', // Include padding/border in width calculation
+        data: { 
+          label: `Process ${String.fromCharCode(64 + col)}`, // A, B, C, etc.
+          onClick: () => {
+            if (processPhase && processPhase.mdFile) {
+              loadMarkdown(processPhase.mdFile, processName, 'processes');
+            }
+          }
         },
+        draggable: false,
+        selectable: true,
       });
     });
     
@@ -210,7 +212,11 @@ function FlowComponent() {
       const colIndex = step.col - 1;
       const lane = PROCESS_CONFIG.swimLanes[rowIndex];
       
-      const x = START_X + (colIndex * (NODE_WIDTH + HORIZONTAL_SPACING));
+      // Calculate column left edge (same as headers)
+      const columnLeft = START_X + (colIndex * (NODE_WIDTH + HORIZONTAL_SPACING));
+      
+      // Left-align task box with header, shifted 25px left
+      const x = columnLeft - 25;
       const y = START_Y + (rowIndex * LANE_HEIGHT) + (LANE_HEIGHT / 2) - 45;
 
       nodes.push({
@@ -292,13 +298,8 @@ function FlowComponent() {
   const [edges] = useEdgesState(initialEdges);
 
   const handleNodeClick = useCallback((event, node) => {
-    // Check if it's a process phase header
-    if (node.id.startsWith('phase-header-')) {
-      const col = parseInt(node.id.replace('phase-header-', ''));
-      const processPhase = PROCESS_CONFIG.processPhases?.find(p => p.col === col);
-      if (processPhase && processPhase.mdFile) {
-        loadMarkdown(processPhase.mdFile, processPhase.name, 'processes');
-      }
+    // Skip process headers - they handle their own clicks via ProcessHeader component
+    if (node.type === 'processHeader') {
       return;
     }
     
