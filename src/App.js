@@ -28,7 +28,7 @@ hideHandlesStyle.innerHTML = `
   
   .process-header-clickable:hover {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
-    filter: brightness(1.15) !important;
+    filter: brightness(1.25) !important;
   }
 `;
 if (typeof document !== 'undefined' && !document.getElementById('hide-handles')) {
@@ -83,10 +83,12 @@ function FlowComponent() {
     const nodes = [];
     const edges = [];
     
-    const maxCol = PROCESS_CONFIG.flow.reduce((max, step) => Math.max(max, step.col), 0);
+    // Get columns from processPhases (source of truth for what columns exist)
+    const columns = PROCESS_CONFIG.processPhases.map(p => p.col).sort((a, b) => a - b);
+    const maxCol = Math.max(...columns);
     const swimlaneWidth = (maxCol * (NODE_WIDTH + HORIZONTAL_SPACING)) + 300;
     
-    // Group processes by column (used for both headers and edges)
+    // Group processes by column (for edge routing logic)
     const columnGroups = {};
     PROCESS_CONFIG.flow.forEach(step => {
       if (!columnGroups[step.col]) {
@@ -94,8 +96,6 @@ function FlowComponent() {
       }
       columnGroups[step.col].push(step);
     });
-    
-    const columns = Object.keys(columnGroups).map(Number).sort((a, b) => a - b);
     
     // Add process phase headers (column headers)
     // Left-align headers and task boxes for simple, consistent alignment
@@ -146,7 +146,7 @@ function FlowComponent() {
         type: 'processHeader',
         position: { x: headerX, y: headerY },
         data: { 
-          label: `Process ${String.fromCharCode(64 + col)}`, // A, B, C, etc.
+          label: processPhase?.name || `Process ${String.fromCharCode(64 + col)}`, // Use actual name from processPhases
           onClick: () => {
             if (processPhase && processPhase.mdFile) {
               loadMarkdown(processPhase.mdFile, processName, 'processes');
@@ -241,52 +241,55 @@ function FlowComponent() {
         const nextCol = columns[colIndex + 1];
         const nextColumnBoxes = columnGroups[nextCol];
         
-        // Find primary task(s) in current column
-        const primaryBoxes = currentColumnBoxes.filter(box => box.primary);
-        
-        // Find primary task in next column
-        const nextPrimaryBox = nextColumnBoxes.find(box => box.primary);
-        
-        // If no primary marked, use first box as default
-        const sourceTasks = primaryBoxes.length > 0 ? primaryBoxes : [currentColumnBoxes[0]];
-        const targetTask = nextPrimaryBox || nextColumnBoxes[0];
-        
-        // Connect primary tasks
-        sourceTasks.forEach(sourceBox => {
-          const sameRow = sourceBox.row === targetTask.row;
-          const targetAbove = targetTask.row < sourceBox.row;
+        // Only create edges if both columns have tasks
+        if (currentColumnBoxes && nextColumnBoxes) {
+          // Find primary task(s) in current column
+          const primaryBoxes = currentColumnBoxes.filter(box => box.primary);
           
-          let edgeConfig = {
-            id: `e-${sourceBox.id}-${targetTask.id}`,
-            source: sourceBox.id,
-            target: targetTask.id,
-            animated: false,
-            style: { stroke: '#000000', strokeWidth: 2 },
-            markerEnd: {
-              type: 'arrowclosed',
-              color: '#000000',
-            },
-          };
+          // Find primary task in next column
+          const nextPrimaryBox = nextColumnBoxes.find(box => box.primary);
           
-          if (sameRow) {
-            // Same row - straight horizontal
-            edgeConfig.sourceHandle = 'right';
-            edgeConfig.targetHandle = 'left';
-            edgeConfig.type = 'straight';
-          } else if (targetAbove) {
-            // Target is above - go right then up
-            edgeConfig.sourceHandle = 'right';
-            edgeConfig.targetHandle = 'left';
-            edgeConfig.type = 'smoothstep';
-          } else {
-            // Target is below - go right then down
-            edgeConfig.sourceHandle = 'right';
-            edgeConfig.targetHandle = 'left';
-            edgeConfig.type = 'smoothstep';
-          }
+          // If no primary marked, use first box as default
+          const sourceTasks = primaryBoxes.length > 0 ? primaryBoxes : [currentColumnBoxes[0]];
+          const targetTask = nextPrimaryBox || nextColumnBoxes[0];
           
-          edges.push(edgeConfig);
-        });
+          // Connect primary tasks
+          sourceTasks.forEach(sourceBox => {
+            const sameRow = sourceBox.row === targetTask.row;
+            const targetAbove = targetTask.row < sourceBox.row;
+            
+            let edgeConfig = {
+              id: `e-${sourceBox.id}-${targetTask.id}`,
+              source: sourceBox.id,
+              target: targetTask.id,
+              animated: false,
+              style: { stroke: '#000000', strokeWidth: 2 },
+              markerEnd: {
+                type: 'arrowclosed',
+                color: '#000000',
+              },
+            };
+            
+            if (sameRow) {
+              // Same row - straight horizontal
+              edgeConfig.sourceHandle = 'right';
+              edgeConfig.targetHandle = 'left';
+              edgeConfig.type = 'straight';
+            } else if (targetAbove) {
+              // Target is above - go right then up
+              edgeConfig.sourceHandle = 'right';
+              edgeConfig.targetHandle = 'left';
+              edgeConfig.type = 'smoothstep';
+            } else {
+              // Target is below - go right then down
+              edgeConfig.sourceHandle = 'right';
+              edgeConfig.targetHandle = 'left';
+              edgeConfig.type = 'smoothstep';
+            }
+            
+            edges.push(edgeConfig);
+          });
+        }
       }
     });
 
